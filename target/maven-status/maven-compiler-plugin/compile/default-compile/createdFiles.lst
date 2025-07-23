@@ -16,6 +16,7 @@ com/gestionrh/service/HoraireService.class
 com/gestionrh/security/JwtUtils.class
 com/gestionrh/entity/StatutConge.class
 com/gestionrh/entity/Role.class
+com/gestionrh/controller/HomeController.class
 com/gestionrh/controller/DashboardController.class
 com/gestionrh/repository/CollaborateurRepository.class
 com/gestionrh/repository/CongeRepository.class

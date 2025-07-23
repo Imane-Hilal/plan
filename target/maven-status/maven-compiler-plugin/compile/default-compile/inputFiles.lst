@@ -15,6 +15,7 @@
 /workspace/src/main/java/com/gestionrh/repository/HoraireRepository.java
 /workspace/src/main/java/com/gestionrh/entity/Horaire.java
 /workspace/src/main/java/com/gestionrh/config/WebSecurityConfig.java
+/workspace/src/main/java/com/gestionrh/controller/HomeController.java
 /workspace/src/main/java/com/gestionrh/repository/CongeRepository.java
 /workspace/src/main/java/com/gestionrh/entity/StatutConge.java
 /workspace/src/main/java/com/gestionrh/security/JwtUtils.java
