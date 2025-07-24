@@ -11,10 +11,10 @@ import org.springframework.web.servlet.view.RedirectView;
 public class HomeController {
     
     /**
-     * Page d'accueil - redirige vers Swagger UI
+     * Page d'accueil - redirige vers la page de connexion
      */
     @GetMapping("/")
     public RedirectView home() {
-        return new RedirectView("/swagger-ui.html");
+        return new RedirectView("/login.html");
     }
 }
