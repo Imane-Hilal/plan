@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestionRH - Système de Gestion des Ressources Humaines</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-users"></i>
+                <h1>GestionRH</h1>
+            </div>
+            <nav class="nav" id="mainNav" style="display: none;">
+                <a href="#" onclick="showDashboard()"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a>
+                <a href="#" onclick="showEmployees()" id="employeesNav" style="display: none;"><i class="fas fa-users"></i> Collaborateurs</a>
+                <a href="#" onclick="showSchedules()"><i class="fas fa-calendar"></i> Horaires</a>
+                <a href="#" onclick="showLeaves()"><i class="fas fa-umbrella-beach"></i> Congés</a>
+                <a href="#" onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Login Section -->
+        <section id="loginSection" class="section">
+            <div class="container">
+                <div class="login-container">
+                    <div class="login-box">
+                        <h2><i class="fas fa-sign-in-alt"></i> Connexion</h2>
+                        <form id="loginForm">
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Mot de passe:</label>
+                                <input type="password" id="password" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Se connecter
+                            </button>
+                        </form>
+                        <div class="test-accounts">
+                            <h3>Comptes de test:</h3>
+                            <p><strong>Admin:</strong> admin@gestionrh.com / password123</p>
+                            <p><strong>Utilisateur:</strong> jean.dupont@gestionrh.com / password123</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboardSection" class="section" style="display: none;">
+            <div class="container">
+                <h2><i class="fas fa-tachometer-alt"></i> Tableau de bord</h2>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-users"></i> Total Collaborateurs</h3>
+                        <p class="dashboard-number" id="totalEmployees">-</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-user-check"></i> Présents Aujourd'hui</h3>
+                        <p class="dashboard-number" id="presentToday">-</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-umbrella-beach"></i> En Congé</h3>
+                        <p class="dashboard-number" id="onLeave">-</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-clock"></i> Demandes en Attente</h3>
+                        <p class="dashboard-number" id="pendingRequests">-</p>
+                    </div>
+                </div>
+                <div id="adminDashboard" style="display: none;">
+                    <h3>Disponibilité Globale</h3>
+                    <div id="availabilityData"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Employees Section -->
+        <section id="employeesSection" class="section" style="display: none;">
+            <div class="container">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> Gestion des Collaborateurs</h2>
+                    <button class="btn btn-primary" onclick="showAddEmployeeModal()">
+                        <i class="fas fa-plus"></i> Ajouter un collaborateur
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="employeesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Email</th>
+                                <th>Poste</th>
+                                <th>Rôle</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Schedules Section -->
+        <section id="schedulesSection" class="section" style="display: none;">
+            <div class="container">
+                <div class="section-header">
+                    <h2><i class="fas fa-calendar"></i> Gestion des Horaires</h2>
+                    <button class="btn btn-primary" onclick="showAddScheduleModal()">
+                        <i class="fas fa-plus"></i> Ajouter un horaire
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="schedulesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Collaborateur</th>
+                                <th>Date</th>
+                                <th>Heure Début</th>
+                                <th>Heure Fin</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Leaves Section -->
+        <section id="leavesSection" class="section" style="display: none;">
+            <div class="container">
+                <div class="section-header">
+                    <h2><i class="fas fa-umbrella-beach"></i> Gestion des Congés</h2>
+                    <button class="btn btn-primary" onclick="showAddLeaveModal()">
+                        <i class="fas fa-plus"></i> Demander un congé
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="leavesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Collaborateur</th>
+                                <th>Date Début</th>
+                                <th>Date Fin</th>
+                                <th>Type</th>
+                                <th>Statut</th>
+                                <th>Motif</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- Add Employee Modal -->
+    <div id="addEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Ajouter un Collaborateur</h3>
+                <span class="close" onclick="closeModal('addEmployeeModal')">&times;</span>
+            </div>
+            <form id="addEmployeeForm">
+                <div class="form-group">
+                    <label for="empNom">Nom:</label>
+                    <input type="text" id="empNom" name="nom" required>
+                </div>
+                <div class="form-group">
+                    <label for="empPrenom">Prénom:</label>
+                    <input type="text" id="empPrenom" name="prenom" required>
+                </div>
+                <div class="form-group">
+                    <label for="empEmail">Email:</label>
+                    <input type="email" id="empEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="empPoste">Poste:</label>
+                    <input type="text" id="empPoste" name="poste" required>
+                </div>
+                <div class="form-group">
+                    <label for="empRole">Rôle:</label>
+                    <select id="empRole" name="role" required>
+                        <option value="COLLABORATEUR">Collaborateur</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="empPassword">Mot de passe:</label>
+                    <input type="password" id="empPassword" name="motDePasse" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addEmployeeModal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Schedule Modal -->
+    <div id="addScheduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-calendar-plus"></i> Ajouter un Horaire</h3>
+                <span class="close" onclick="closeModal('addScheduleModal')">&times;</span>
+            </div>
+            <form id="addScheduleForm">
+                <div class="form-group">
+                    <label for="scheduleCollaborateur">Collaborateur:</label>
+                    <select id="scheduleCollaborateur" name="collaborateur" required>
+                        <option value="">Sélectionner un collaborateur</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="scheduleDate">Date:</label>
+                    <input type="date" id="scheduleDate" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="scheduleStart">Heure de début:</label>
+                    <input type="time" id="scheduleStart" name="heureDebut" required>
+                </div>
+                <div class="form-group">
+                    <label for="scheduleEnd">Heure de fin:</label>
+                    <input type="time" id="scheduleEnd" name="heureFin" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addScheduleModal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Leave Modal -->
+    <div id="addLeaveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-umbrella-beach"></i> Demander un Congé</h3>
+                <span class="close" onclick="closeModal('addLeaveModal')">&times;</span>
+            </div>
+            <form id="addLeaveForm">
+                <div class="form-group">
+                    <label for="leaveCollaborateur">Collaborateur:</label>
+                    <select id="leaveCollaborateur" name="collaborateur" required>
+                        <option value="">Sélectionner un collaborateur</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="leaveStartDate">Date de début:</label>
+                    <input type="date" id="leaveStartDate" name="dateDebut" required>
+                </div>
+                <div class="form-group">
+                    <label for="leaveEndDate">Date de fin:</label>
+                    <input type="date" id="leaveEndDate" name="dateFin" required>
+                </div>
+                <div class="form-group">
+                    <label for="leaveType">Type de congé:</label>
+                    <select id="leaveType" name="type" required>
+                        <option value="PAYE">Payé</option>
+                        <option value="MALADIE">Maladie</option>
+                        <option value="FORMATION">Formation</option>
+                        <option value="MATERNITE">Maternité</option>
+                        <option value="PATERNITE">Paternité</option>
+                        <option value="SANS_SOLDE">Sans solde</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="leaveReason">Motif:</label>
+                    <textarea id="leaveReason" name="motif" rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addLeaveModal')">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Soumettre</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
