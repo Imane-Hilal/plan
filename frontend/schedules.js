@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function checkAuthAndInit() {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (!token) {
         window.location.href = 'login.html';
         return;
@@ -18,7 +18,7 @@ function checkAuthAndInit() {
 }
 
 function initializePage() {
-    updateUserInfo();
+    updateUIForUserRole();
     loadCollaborateurs();
     loadSchedules();
     setupEventListeners();
@@ -52,7 +52,7 @@ function setupEventListeners() {
 
 async function loadCollaborateurs() {
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/collaborateurs`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -97,7 +97,7 @@ function populateCollaborateurSelects() {
 
 async function loadSchedules() {
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/horaires`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -200,7 +200,7 @@ async function handleAddSchedule(event) {
     };
     
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/horaires`, {
             method: 'POST',
             headers: {
@@ -238,7 +238,7 @@ async function handleEditSchedule(event) {
     };
     
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/horaires/${scheduleId}`, {
             method: 'PUT',
             headers: {
@@ -281,7 +281,7 @@ async function deleteSchedule(id) {
     }
     
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/horaires/${id}`, {
             method: 'DELETE',
             headers: {

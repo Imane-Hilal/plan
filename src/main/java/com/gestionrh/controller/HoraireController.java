@@ -30,11 +30,17 @@ public class HoraireController {
     }
     
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Lister tous les horaires", description = "Récupérer la liste de tous les horaires (Admin uniquement)")
+    @Operation(summary = "Lister tous les horaires", description = "Récupérer la liste de tous les horaires")
     public ResponseEntity<List<Horaire>> getAllHoraires() {
-        List<Horaire> horaires = horaireService.getAllHoraires();
-        return ResponseEntity.ok(horaires);
+        try {
+            List<Horaire> horaires = horaireService.getAllHoraires();
+            System.out.println("Nombre d'horaires trouvés: " + horaires.size());
+            return ResponseEntity.ok(horaires);
+        } catch (Exception e) {
+            System.out.println("Erreur lors de la récupération des horaires: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
     
     @GetMapping("/{id}")

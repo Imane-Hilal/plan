@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function checkAuthAndInit() {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (!token) {
         window.location.href = 'login.html';
         return;
@@ -35,7 +35,7 @@ function checkAuthAndInit() {
 }
 
 function initializePage() {
-    updateUserInfo();
+    updateUIForUserRole();
     loadCollaborateurs();
     loadLeaves();
     setupEventListeners();
@@ -108,7 +108,7 @@ function populateLeaveTypes() {
 
 async function loadCollaborateurs() {
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/collaborateurs`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -129,7 +129,7 @@ async function loadCollaborateurs() {
 }
 
 function populateCollaborateurSelects() {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const userInfo = JSON.parse(localStorage.getItem('currentUser'));
     const isAdmin = userInfo && userInfo.role === 'ADMIN';
     
     const selects = ['leaveCollaborateur', 'editCollaborateurId', 'collaborateurFilter'];
@@ -167,8 +167,8 @@ function populateCollaborateurSelects() {
 
 async function loadLeaves() {
     try {
-        const token = localStorage.getItem('token');
-        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        const token = localStorage.getItem('authToken');
+        const userInfo = JSON.parse(localStorage.getItem('currentUser'));
         const isAdmin = userInfo && userInfo.role === 'ADMIN';
         
         let url = `${API_BASE_URL}/conges`;
@@ -207,7 +207,7 @@ function displayLeaves(leaves) {
         return;
     }
     
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const userInfo = JSON.parse(localStorage.getItem('currentUser'));
     const isAdmin = userInfo && userInfo.role === 'ADMIN';
     
     leaves.forEach(leave => {
@@ -291,7 +291,7 @@ async function handleAddLeave(event) {
     }
     
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/conges/soumettre`, {
             method: 'POST',
             headers: {
@@ -336,7 +336,7 @@ async function handleEditLeave(event) {
     }
     
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/conges/${leaveId}`, {
             method: 'PUT',
             headers: {
@@ -380,7 +380,7 @@ async function deleteLeave(id) {
     }
     
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/conges/${id}`, {
             method: 'DELETE',
             headers: {
@@ -406,7 +406,7 @@ async function approveLeave(id) {
     const commentaire = prompt('Commentaire (optionnel):');
     
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/conges/${id}/valider`, {
             method: 'POST',
             headers: {
@@ -437,7 +437,7 @@ async function rejectLeave(id) {
     }
     
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         const response = await fetch(`${API_BASE_URL}/conges/${id}/rejeter`, {
             method: 'POST',
             headers: {

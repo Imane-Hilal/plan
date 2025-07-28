@@ -77,6 +77,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/", "/login.html", "/dashboard.html", "/employees.html", "/schedules.html", "/leaves.html").permitAll()
                 .requestMatchers("/*.css", "/*.js", "/static/**").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/horaires/**", "/api/conges/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
