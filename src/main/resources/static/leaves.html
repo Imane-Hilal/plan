@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestionRH - Gestion des Congés</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-users"></i>
+                <h1>GestionRH</h1>
+            </div>
+            <nav class="nav">
+                <a href="dashboard.html">
+                    <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                </a>
+                <a href="employees.html" id="employeesNav" style="display: none;">
+                    <i class="fas fa-users"></i> Collaborateurs
+                </a>
+                <a href="schedules.html">
+                    <i class="fas fa-calendar"></i> Horaires
+                </a>
+                <a href="leaves.html" class="active">
+                    <i class="fas fa-umbrella-beach"></i> Congés
+                </a>
+                <a href="#" onclick="logout()" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-umbrella-beach"></i> Gestion des Congés</h1>
+                <p>Demandes et validation des congés</p>
+            </div>
+
+            <!-- Page Actions -->
+            <div class="page-actions">
+                <button class="btn btn-primary" onclick="showAddLeaveModal()">
+                    <i class="fas fa-plus"></i> Demander un congé
+                </button>
+                <div class="filters">
+                    <select id="statusFilter" onchange="filterByStatus()">
+                        <option value="">Tous les statuts</option>
+                        <option value="EN_ATTENTE">En attente</option>
+                        <option value="VALIDE">Validé</option>
+                        <option value="REJETE">Rejeté</option>
+                    </select>
+                    <select id="typeFilter" onchange="filterByType()">
+                        <option value="">Tous les types</option>
+                        <option value="PAYE">Congé payé</option>
+                        <option value="MALADIE">Maladie</option>
+                        <option value="FORMATION">Formation</option>
+                        <option value="MATERNITE">Maternité</option>
+                        <option value="PATERNITE">Paternité</option>
+                        <option value="SANS_SOLDE">Sans solde</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Statistics Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <i class="fas fa-clipboard-list"></i>
+                    <div>
+                        <span class="stat-number" id="totalLeaves">0</span>
+                        <span class="stat-label">Total demandes</span>
+                    </div>
+                </div>
+                <div class="stat-card pending">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <span class="stat-number" id="pendingLeaves">0</span>
+                        <span class="stat-label">En attente</span>
+                    </div>
+                </div>
+                <div class="stat-card approved">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <span class="stat-number" id="approvedLeaves">0</span>
+                        <span class="stat-label">Validées</span>
+                    </div>
+                </div>
+                <div class="stat-card rejected">
+                    <i class="fas fa-times-circle"></i>
+                    <div>
+                        <span class="stat-number" id="rejectedLeaves">0</span>
+                        <span class="stat-label">Rejetées</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions for Admin -->
+            <div id="adminQuickActions" class="quick-actions-section" style="display: none;">
+                <h3><i class="fas fa-star"></i> Actions Rapides (Admin)</h3>
+                <div class="quick-actions-grid">
+                    <button class="btn btn-success" onclick="showPendingLeaves()">
+                        <i class="fas fa-clock"></i>
+                        <span>Demandes en attente</span>
+                        <span class="badge" id="pendingBadge">0</span>
+                    </button>
+                    <button class="btn btn-info" onclick="showAllLeaves()">
+                        <i class="fas fa-list"></i>
+                        <span>Toutes les demandes</span>
+                    </button>
+                    <button class="btn btn-warning" onclick="generateLeaveReport()">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Rapport mensuel</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Leaves Table -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h3><i class="fas fa-list"></i> Liste des Congés</h3>
+                    <div class="table-actions">
+                        <select id="employeeFilter" onchange="filterByEmployee()" class="admin-only" style="display: none;">
+                            <option value="">Tous les collaborateurs</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="exportLeaves()">
+                            <i class="fas fa-download"></i> Exporter
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="leavesTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th class="admin-only" style="display: none;">Collaborateur</th>
+                                <th>Date Début</th>
+                                <th>Date Fin</th>
+                                <th>Durée</th>
+                                <th>Type</th>
+                                <th>Statut</th>
+                                <th>Motif</th>
+                                <th class="admin-only" style="display: none;">Commentaire Admin</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leavesTableBody">
+                            <tr>
+                                <td colspan="10" class="loading-row">
+                                    <i class="fas fa-spinner fa-spin"></i> Chargement des congés...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Leave Calendar View -->
+            <div id="leaveCalendar" class="calendar-section" style="display: none;">
+                <div class="calendar-header">
+                    <h3><i class="fas fa-calendar-alt"></i> Vue Calendrier des Congés</h3>
+                    <div class="calendar-controls">
+                        <button class="btn btn-secondary" onclick="previousMonth()">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span id="currentMonthYear">Janvier 2024</span>
+                        <button class="btn btn-secondary" onclick="nextMonth()">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="leaveCalendarGrid">
+                    <!-- Calendar will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Leave Modal -->
+    <div id="addLeaveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-umbrella-beach"></i> Demander un Congé</h3>
+                <span class="close" onclick="closeModal('addLeaveModal')">&times;</span>
+            </div>
+            <form id="addLeaveForm" class="modal-form">
+                <div class="form-group admin-only">
+                    <label for="leaveCollaborateur">
+                        <i class="fas fa-user"></i> Collaborateur *
+                    </label>
+                    <select id="leaveCollaborateur" name="collaborateur" required>
+                        <option value="">Sélectionner un collaborateur</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="leaveStartDate">
+                            <i class="fas fa-calendar"></i> Date de début *
+                        </label>
+                        <input type="date" id="leaveStartDate" name="dateDebut" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="leaveEndDate">
+                            <i class="fas fa-calendar"></i> Date de fin *
+                        </label>
+                        <input type="date" id="leaveEndDate" name="dateFin" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-info-circle"></i> Durée calculée
+                    </label>
+                    <div class="duration-display" id="leaveDurationDisplay">
+                        Sélectionnez les dates pour voir la durée
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="leaveType">
+                        <i class="fas fa-tag"></i> Type de congé *
+                    </label>
+                    <select id="leaveType" name="type" required>
+                        <option value="">Sélectionner un type</option>
+                        <option value="PAYE">Congé payé</option>
+                        <option value="MALADIE">Congé maladie</option>
+                        <option value="FORMATION">Formation</option>
+                        <option value="MATERNITE">Congé maternité</option>
+                        <option value="PATERNITE">Congé paternité</option>
+                        <option value="SANS_SOLDE">Congé sans solde</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="leaveReason">
+                        <i class="fas fa-comment"></i> Motif (optionnel)
+                    </label>
+                    <textarea id="leaveReason" name="motif" rows="3" placeholder="Précisez le motif de votre demande..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="urgentRequest" name="urgent">
+                        <label for="urgentRequest">
+                            <i class="fas fa-exclamation-triangle"></i> Demande urgente
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addLeaveModal')">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Soumettre la demande
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Approve/Reject Leave Modal -->
+    <div id="approveRejectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="approveRejectTitle"><i class="fas fa-check-circle"></i> Valider la Demande</h3>
+                <span class="close" onclick="closeModal('approveRejectModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="leave-details" id="leaveDetails">
+                    <!-- Leave details will be populated by JavaScript -->
+                </div>
+                
+                <form id="approveRejectForm" class="modal-form">
+                    <input type="hidden" id="actionLeaveId" name="leaveId">
+                    <input type="hidden" id="actionType" name="action">
+                    
+                    <div class="form-group">
+                        <label for="adminComment">
+                            <i class="fas fa-comment-alt"></i> Commentaire administrateur
+                        </label>
+                        <textarea id="adminComment" name="commentaire" rows="4" placeholder="Ajoutez un commentaire (optionnel pour validation, obligatoire pour rejet)..."></textarea>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('approveRejectModal')">
+                            <i class="fas fa-times"></i> Annuler
+                        </button>
+                        <button type="submit" class="btn" id="actionButton">
+                            <i class="fas fa-check"></i> Confirmer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leave Details Modal -->
+    <div id="leaveDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-info-circle"></i> Détails du Congé</h3>
+                <span class="close" onclick="closeModal('leaveDetailsModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="leave-full-details" id="leaveFullDetails">
+                    <!-- Full leave details will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('leaveDetailsModal')">
+                    <i class="fas fa-times"></i> Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script src="common.js"></script>
+    <script src="leaves.js"></script>
+</body>
+</html>

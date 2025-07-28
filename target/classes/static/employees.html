@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestionRH - Gestion des Collaborateurs</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-users"></i>
+                <h1>GestionRH</h1>
+            </div>
+            <nav class="nav">
+                <a href="dashboard.html">
+                    <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                </a>
+                <a href="employees.html" class="active">
+                    <i class="fas fa-users"></i> Collaborateurs
+                </a>
+                <a href="schedules.html">
+                    <i class="fas fa-calendar"></i> Horaires
+                </a>
+                <a href="leaves.html">
+                    <i class="fas fa-umbrella-beach"></i> Congés
+                </a>
+                <a href="#" onclick="logout()" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-users"></i> Gestion des Collaborateurs</h1>
+                <p>Administration des comptes collaborateurs</p>
+            </div>
+
+            <!-- Page Actions -->
+            <div class="page-actions">
+                <button class="btn btn-primary" onclick="showAddEmployeeModal()">
+                    <i class="fas fa-user-plus"></i> Ajouter un collaborateur
+                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Rechercher un collaborateur..." onkeyup="filterEmployees()">
+                </div>
+            </div>
+
+            <!-- Statistics Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div>
+                        <span class="stat-number" id="totalEmployeesCount">0</span>
+                        <span class="stat-label">Total</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-user-shield"></i>
+                    <div>
+                        <span class="stat-number" id="adminCount">0</span>
+                        <span class="stat-label">Admins</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-user"></i>
+                    <div>
+                        <span class="stat-number" id="userCount">0</span>
+                        <span class="stat-label">Collaborateurs</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employees Table -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h3><i class="fas fa-list"></i> Liste des Collaborateurs</h3>
+                    <div class="table-actions">
+                        <select id="roleFilter" onchange="filterByRole()">
+                            <option value="">Tous les rôles</option>
+                            <option value="ADMIN">Administrateurs</option>
+                            <option value="COLLABORATEUR">Collaborateurs</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="employeesTable" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Photo</th>
+                                <th>Nom Complet</th>
+                                <th>Email</th>
+                                <th>Poste</th>
+                                <th>Rôle</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeesTableBody">
+                            <tr>
+                                <td colspan="8" class="loading-row">
+                                    <i class="fas fa-spinner fa-spin"></i> Chargement des collaborateurs...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Employee Modal -->
+    <div id="addEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Ajouter un Collaborateur</h3>
+                <span class="close" onclick="closeModal('addEmployeeModal')">&times;</span>
+            </div>
+            <form id="addEmployeeForm" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="empNom">
+                            <i class="fas fa-user"></i> Nom *
+                        </label>
+                        <input type="text" id="empNom" name="nom" required placeholder="Nom de famille">
+                    </div>
+                    <div class="form-group">
+                        <label for="empPrenom">
+                            <i class="fas fa-user"></i> Prénom *
+                        </label>
+                        <input type="text" id="empPrenom" name="prenom" required placeholder="Prénom">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="empEmail">
+                        <i class="fas fa-envelope"></i> Email *
+                    </label>
+                    <input type="email" id="empEmail" name="email" required placeholder="adresse@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="empPoste">
+                        <i class="fas fa-briefcase"></i> Poste *
+                    </label>
+                    <input type="text" id="empPoste" name="poste" required placeholder="Intitulé du poste">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="empRole">
+                            <i class="fas fa-user-tag"></i> Rôle *
+                        </label>
+                        <select id="empRole" name="role" required>
+                            <option value="">Sélectionner un rôle</option>
+                            <option value="COLLABORATEUR">Collaborateur</option>
+                            <option value="ADMIN">Administrateur</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="empPassword">
+                            <i class="fas fa-lock"></i> Mot de passe *
+                        </label>
+                        <input type="password" id="empPassword" name="motDePasse" required placeholder="••••••••">
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addEmployeeModal')">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter le collaborateur
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div id="editEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-edit"></i> Modifier le Collaborateur</h3>
+                <span class="close" onclick="closeModal('editEmployeeModal')">&times;</span>
+            </div>
+            <form id="editEmployeeForm" class="modal-form">
+                <input type="hidden" id="editEmpId" name="id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editEmpNom">
+                            <i class="fas fa-user"></i> Nom *
+                        </label>
+                        <input type="text" id="editEmpNom" name="nom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmpPrenom">
+                            <i class="fas fa-user"></i> Prénom *
+                        </label>
+                        <input type="text" id="editEmpPrenom" name="prenom" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editEmpEmail">
+                        <i class="fas fa-envelope"></i> Email *
+                    </label>
+                    <input type="email" id="editEmpEmail" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editEmpPoste">
+                        <i class="fas fa-briefcase"></i> Poste *
+                    </label>
+                    <input type="text" id="editEmpPoste" name="poste" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editEmpRole">
+                        <i class="fas fa-user-tag"></i> Rôle *
+                    </label>
+                    <select id="editEmpRole" name="role" required>
+                        <option value="COLLABORATEUR">Collaborateur</option>
+                        <option value="ADMIN">Administrateur</option>
+                    </select>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editEmployeeModal')">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Sauvegarder
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <script src="common.js"></script>
+    <script src="employees.js"></script>
+</body>
+</html>
