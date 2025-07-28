@@ -17,6 +17,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
@@ -32,28 +35,36 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
     
+    @Autowired
+    PasswordEncoder passwordEncoder;
+    
+
+    
     @PostMapping("/signin")
     @Operation(summary = "Connexion", description = "Authentifier un collaborateur et retourner un token JWT")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        
-        Authentication authentication = authenticationManager
-            .authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequest.getEmail(), 
-                loginRequest.getMotDePasse()));
-        
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
-        
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        Collaborateur collaborateur = collaborateurService.getCollaborateurByEmail(userDetails.getUsername())
-            .orElseThrow(() -> new RuntimeException("Collaborateur non trouvé"));
-        
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                                               userDetails.getId(),
-                                               userDetails.getUsername(),
-                                               collaborateur.getNom(),
-                                               collaborateur.getPrenom(),
-                                               collaborateur.getRole()));
+        try {
+            Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(
+                    loginRequest.getEmail(), 
+                    loginRequest.getMotDePasse()));
+            
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
+            
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            Collaborateur collaborateur = collaborateurService.getCollaborateurByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Collaborateur non trouvé"));
+            
+            return ResponseEntity.ok(new JwtResponse(jwt,
+                                                   userDetails.getId(),
+                                                   userDetails.getUsername(),
+                                                   collaborateur.getNom(),
+                                                   collaborateur.getPrenom(),
+                                                   collaborateur.getRole()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erreur d'authentification: " + e.getMessage());
+        }
     }
     
     @PostMapping("/signup")
