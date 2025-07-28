@@ -23,6 +23,12 @@ public class HoraireController {
     @Autowired
     private HoraireService horaireService;
     
+    @GetMapping("/test")
+    @Operation(summary = "Test endpoint", description = "Test simple")
+    public ResponseEntity<String> testEndpoint() {
+        return ResponseEntity.ok("Horaires controller fonctionne!");
+    }
+    
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Lister tous les horaires", description = "Récupérer la liste de tous les horaires (Admin uniquement)")

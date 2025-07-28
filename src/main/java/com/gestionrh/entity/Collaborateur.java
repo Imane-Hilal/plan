@@ -1,5 +1,6 @@
 package com.gestionrh.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -37,13 +38,16 @@ public class Collaborateur {
     @Column(nullable = false)
     private Role role;
     
+    @JsonIgnore
     @NotBlank(message = "Le mot de passe est obligatoire")
     @Column(nullable = false)
     private String motDePasse;
     
+    @JsonIgnore
     @OneToMany(mappedBy = "collaborateur", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Horaire> horaires = new ArrayList<>();
     
+    @JsonIgnore
     @OneToMany(mappedBy = "collaborateur", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Conge> conges = new ArrayList<>();
     
