@@ -24,8 +24,7 @@ public class CongeController {
     private CongeService congeService;
     
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Lister tous les congés", description = "Récupérer la liste de tous les congés (Admin uniquement)")
+    @Operation(summary = "Lister tous les congés", description = "Récupérer la liste de tous les congés")
     public ResponseEntity<List<Conge>> getAllConges() {
         List<Conge> conges = congeService.getAllConges();
         return ResponseEntity.ok(conges);
