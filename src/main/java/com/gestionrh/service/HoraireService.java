@@ -40,6 +40,10 @@ public class HoraireService {
         return horaireRepository.findByCollaborateurIdAndDateBetween(collaborateurId, dateDebut, dateFin);
     }
     
+    public List<Horaire> getPlanningCollaborateur(Long collaborateurId, LocalDate dateDebut, LocalDate dateFin) {
+        return horaireRepository.findByCollaborateurIdAndDateBetween(collaborateurId, dateDebut, dateFin);
+    }
+    
     public Horaire createHoraire(Horaire horaire) {
         // Vérifier que le collaborateur existe
         Collaborateur collaborateur = collaborateurRepository.findById(horaire.getCollaborateur().getId())
