@@ -23,18 +23,11 @@ public class HoraireController {
     @Autowired
     private HoraireService horaireService;
     
-    @GetMapping("/test")
-    @Operation(summary = "Test endpoint", description = "Test simple")
-    public ResponseEntity<String> testEndpoint() {
-        return ResponseEntity.ok("Horaires controller fonctionne!");
-    }
-    
     @GetMapping
     @Operation(summary = "Lister tous les horaires", description = "Récupérer la liste de tous les horaires")
     public ResponseEntity<List<Horaire>> getAllHoraires() {
         try {
             List<Horaire> horaires = horaireService.getAllHoraires();
-            System.out.println("Nombre d'horaires trouvés: " + horaires.size());
             return ResponseEntity.ok(horaires);
         } catch (Exception e) {
             System.out.println("Erreur lors de la récupération des horaires: " + e.getMessage());
@@ -44,7 +37,6 @@ public class HoraireController {
     }
     
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN') or @horaireService.getHoraireById(#id).orElse(null)?.collaborateur?.id == authentication.principal.id")
     @Operation(summary = "Récupérer un horaire", description = "Récupérer un horaire par son ID")
     public ResponseEntity<Horaire> getHoraireById(@PathVariable Long id) {
         return horaireService.getHoraireById(id)
@@ -53,27 +45,25 @@ public class HoraireController {
     }
     
     @GetMapping("/collaborateur/{collaborateurId}")
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #collaborateurId")
-    @Operation(summary = "Lister horaires par collaborateur", description = "Récupérer les horaires d'un collaborateur")
+    @Operation(summary = "Horaires d'un collaborateur", description = "Récupérer tous les horaires d'un collaborateur")
     public ResponseEntity<List<Horaire>> getHorairesByCollaborateur(@PathVariable Long collaborateurId) {
         List<Horaire> horaires = horaireService.getHorairesByCollaborateur(collaborateurId);
         return ResponseEntity.ok(horaires);
     }
     
     @GetMapping("/collaborateur/{collaborateurId}/planning")
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #collaborateurId")
     @Operation(summary = "Planning d'un collaborateur", description = "Récupérer le planning d'un collaborateur sur une période")
     public ResponseEntity<List<Horaire>> getPlanningCollaborateur(
             @PathVariable Long collaborateurId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateDebut,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFin) {
-        List<Horaire> horaires = horaireService.getHorairesByCollaborateurAndPeriod(collaborateurId, dateDebut, dateFin);
-        return ResponseEntity.ok(horaires);
+        
+        List<Horaire> planning = horaireService.getPlanningCollaborateur(collaborateurId, dateDebut, dateFin);
+        return ResponseEntity.ok(planning);
     }
     
     @GetMapping("/date/{date}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Horaires par date", description = "Récupérer tous les horaires d'une date (Admin uniquement)")
+    @Operation(summary = "Horaires par date", description = "Récupérer tous les horaires pour une date donnée")
     public ResponseEntity<List<Horaire>> getHorairesByDate(
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<Horaire> horaires = horaireService.getHorairesByDate(date);

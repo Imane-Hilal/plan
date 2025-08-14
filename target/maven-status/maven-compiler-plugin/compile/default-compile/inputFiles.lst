@@ -5,6 +5,7 @@
 /workspace/src/main/java/com/gestionrh/controller/HoraireController.java
 /workspace/src/main/java/com/gestionrh/security/UserDetailsServiceImpl.java
 /workspace/src/main/java/com/gestionrh/GestionRhApplication.java
+/workspace/src/main/java/com/gestionrh/config/WebConfig.java
 /workspace/src/main/java/com/gestionrh/service/CollaborateurService.java
 /workspace/src/main/java/com/gestionrh/repository/CollaborateurRepository.java
 /workspace/src/main/java/com/gestionrh/entity/Role.java

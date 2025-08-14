@@ -1,4 +1,5 @@
 com/gestionrh/dto/LoginRequest.class
+com/gestionrh/config/WebConfig.class
 com/gestionrh/GestionRhApplication.class
 com/gestionrh/entity/Horaire.class
 com/gestionrh/config/WebSecurityConfig.class

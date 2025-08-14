@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +22,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -55,12 +57,29 @@ public class WebSecurityConfig {
     }
     
     @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers("/frontend/**", "/static/**", "/*.css", "/*.js", "/*.ico", "/*.png", "/*.jpg");
+    }
+    
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        // Allow all origins for development
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        
+        // Allow all methods
+        configuration.setAllowedMethods(Arrays.asList("*"));
+        
+        // Allow all headers
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        
+        // Allow credentials
         configuration.setAllowCredentials(true);
+        
+        // Cache preflight for 1 hour
+        configuration.setMaxAge(3600L);
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -74,16 +93,32 @@ public class WebSecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/", "/login.html", "/dashboard.html", "/employees.html", "/schedules.html", "/leaves.html").permitAll()
-                .requestMatchers("/*.css", "/*.js", "/static/**").permitAll()
+                // Public static content
+                .requestMatchers("/", "/index.html", "/login.html", "/dashboard.html", 
+                    "/employees.html", "/schedules.html", "/leaves.html").permitAll()
+                .requestMatchers("/*.css", "/*.js", "/*.ico", "/*.png", "/*.jpg", 
+                    "/static/**", "/frontend/**").permitAll()
+                
+                // Authentication endpoints
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/horaires/**", "/api/conges/**").permitAll()
+                
+                // H2 Console for development
                 .requestMatchers("/h2-console/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                
+                // Swagger/OpenAPI documentation
+                .requestMatchers("/swagger-ui/**", "/api-docs/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                
+                // All API endpoints - require authentication but allow any role
+                .requestMatchers("/api/**").authenticated()
+                
+                // All other requests need authentication
                 .anyRequest().authenticated()
             )
-            .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
+            .headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.disable()) // For H2 console
+                .contentTypeOptions(contentTypeOptions -> {}) // Default is good
+                .and()
+            )
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         
